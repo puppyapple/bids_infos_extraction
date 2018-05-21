@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*- 
 #%%
 import sys 
-sys.path.append("D:\\标签图谱\\标签关系\\bids_infos_extraction\\Code\\")
+# sys.path.append("D:\\标签图谱\\标签关系\\bids_infos_extraction\\Code\\")
+sys.path.append("/Users/Alexandre/Desktop/Innotree/Graph/bids_infos_extraction/Code")
 import os
 import pandas as pd
 import numpy as np 
@@ -53,5 +54,5 @@ text = '../Data/Input/bids_infos_extraction/test3.txt'
 # utils.table_info_finder(html, table_key_word_dict)
 t = "".join(open(text, encoding='utf8').read().split())
 p1 = r"(((中标|成交).{0,5}(人|公司|供应商|候选人|单位)(名称|信息)|^供应商(名称|信息))[^\u4e00-\u9fa5]{0,10}([\u4e00-\u9fa5]{1,30}(公司|学校|研究所|研究院|院|所)))"
-p2 = r"((中标|成交|报|总报)(价|价格|金额).{0,2}[^\u4e00-\u9fa5]{0,10}(.{0,30}元))"
+p2 = r"((中标|成交|报|总报)(价|价格|金额).[^0-9]{0,3}([0-9]+[\.]?[0-9]+.{1,30}[元|圆][\)|\）]?))"
 re.findall(p2, t)
