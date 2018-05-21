@@ -54,7 +54,7 @@ def table_info_finder(html_text, key_word_dict):
 # 文本提取
 
 
-def text_info_finder(html_text, key_word_dict):
+def text_info_finder(text, key_word_dict):
     return
 
 '''
