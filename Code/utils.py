@@ -21,7 +21,7 @@ def search_around(coord, step, df):
         [(x, coord[1]) for x in range(coord[0] + 1, min(bottom_limit, coord[0] + step + 1))]
     # print(coords_around)
     values_around = [df.values[coo] for coo in coords_around]
-    return values_around
+    return set(values_around)
 
 # 根据获取全部关键词列表中的词语其右方和下方的数据，经过关键词类别对应的正则规则过滤
 def match_result(key_word_list, step, regex_list, df):
@@ -30,7 +30,7 @@ def match_result(key_word_list, step, regex_list, df):
     coordinates = set(reduce(lambda a, b: a + b, [list(zip(ind[0], ind[1])) for ind in indexes]))
     # print(coordinates)
     if len(coordinates) != 0:
-        result_raw = reduce(lambda a, b: a + b, [search_around(coo, step, df) for coo in coordinates])
+        result_raw = reduce(lambda a, b: a.union(b), [search_around(coo, step, df) for coo in coordinates])
         # print(result_raw)
         return set([r for r in result_raw if is_match(r, regex_list)])
     else:
@@ -40,17 +40,21 @@ def match_result(key_word_list, step, regex_list, df):
 def table_info_finder(html_text, key_word_dict):
     try:
         table_list = pd.read_html(html_text, encoding='utf8')
-        for tb in table_list:
-            tb.fillna("", inplace=True)
     except ValueError:
         # print("No tables found!")
-        return {}
+        return {k: "" for k, v in key_word_dict.items()}
     else:
-        result_dict = {k: ",".join(reduce(lambda a, b: b.union(a), [match_result(v["key_word_list"], v["step"], v["regex_list"], df) for df in table_list])) for k, v in key_word_dict.items()}
+        for tb in table_list:       
+            tb.dropna(how="all", inplace=True)
+            tb.fillna("", inplace=True)
+            print(tb)
+        result_dict = {k: reduce(lambda a, b: a.union(b), [match_result(v["key_word_list"], v["step"], v["regex_list"], df) for df in table_list]) for k, v in key_word_dict.items()}
         return result_dict
 
 # 文本提取
-def text_info_finder(html, key_word_dict):
+
+
+def text_info_finder(html_text, key_word_dict):
     return
 
 '''
