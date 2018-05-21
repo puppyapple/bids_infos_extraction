@@ -11,7 +11,7 @@ from functools import reduce
 #%%
 # 判断词是否至少命中正则规则中的一个
 def is_match(word, regex_list):
-    return sum([True for regex in regex_list if re.match(regex, word)])
+    return sum([True for regex in regex_list if re.match(regex, str(word))])
 
 # 返回某个值在dataframe右方和下方step个位置的值列表
 def search_around(coord, step, df):
@@ -25,24 +25,28 @@ def search_around(coord, step, df):
 
 # 根据获取全部关键词列表中的词语其右方和下方的数据，经过关键词类别对应的正则规则过滤
 def match_result(key_word_list, step, regex_list, df):
-    indexes = [np.where(df == key_word) for key_word in key_word_list]
+    # df_str = df.applymap(lambda x: str(x))
+    indexes = [np.where(df.applymap(lambda x: True if re.match(key_word, str(x)) else False)) for key_word in key_word_list]
     coordinates = set(reduce(lambda a, b: a + b, [list(zip(ind[0], ind[1])) for ind in indexes]))
     # print(coordinates)
     if len(coordinates) != 0:
         result_raw = reduce(lambda a, b: a + b, [search_around(coo, step, df) for coo in coordinates])
-        return [r for r in result_raw if is_match(r, regex_list)]
+        # print(result_raw)
+        return set([r for r in result_raw if is_match(r, regex_list)])
     else:
-        return []
+        return set([])
 
 # 根据不同的关键词（抽取主干）进行目标值提取，返回字典列表
 def table_info_finder(html_text, key_word_dict):
     try:
         table_list = pd.read_html(html_text, encoding='utf8')
+        for tb in table_list:
+            tb.fillna("", inplace=True)
     except ValueError:
         # print("No tables found!")
         return {}
     else:
-        result_dict = {k: ",".join(reduce(lambda a, b: a + b, [match_result(v["key_word_list"], v["step"], v["regex_list"], df) for df in table_list])) for k, v in key_word_dict.items()}
+        result_dict = {k: ",".join(reduce(lambda a, b: b.union(a), [match_result(v["key_word_list"], v["step"], v["regex_list"], df) for df in table_list])) for k, v in key_word_dict.items()}
         return result_dict
 
 # 文本提取
