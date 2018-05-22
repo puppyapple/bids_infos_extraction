@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*- 
 #%%
 import sys 
-# sys.path.append("D:\\标签图谱\\标签关系\\bids_infos_extraction\\Code\\")
-sys.path.append("/Users/Alexandre/Desktop/Innotree/Graph/bids_infos_extraction/Code")
+sys.path.append("D:\\标签图谱\\标签关系\\bids_infos_extraction\\Code\\")
+# sys.path.append("/Users/Alexandre/Desktop/Innotree/Graph/bids_infos_extraction/Code")
 import os
 import pandas as pd
 import numpy as np 
@@ -42,7 +42,7 @@ text_key_word_dict = {
         "expr": (6, r"(((中标|成交).{0,5}(人|公司|供应商|候选人|单位)(名称|信息)?|^供应商(名称|信息))[^\u4e00-\u9fa5]{0,10}([\u4e00-\u9fa5]{1,30}(公司|学校|研究所|研究院|院|所)))")
         },
     "bid_amount": {
-        "expr": (3, r"((中标|成交|报|总报)(价|价格|金额).[^0-9]{0,3}([0-9]+[\.]?[0-9]+.{1,30}[元|圆][\)|\）]?))")
+        "expr": (3, r"((中标|成交|报|总报)(价|价格|金额).[^0-9]{0,3}([0-9]+[\.]?[0-9]+.{1,30}[元|圆][\)|\）]?))")
         }
 }
 
@@ -51,9 +51,9 @@ text_key_word_dict = {
 # utils.text_info_finder(html, key_word_dict) .{0,9}(.+[公司|学校|研究所|研究院|院|所])  (?!.*\u4e00-\u9fa5)
 html = '../Data/Input/bids_infos_extraction/test2.html'
 text = '../Data/Input/bids_infos_extraction/test3.txt'
-# utils.table_info_finder(html, table_key_word_dict)
+
 t = "".join(open(text, encoding='utf8').read().split())
 p1 = r"(((中标|成交).{0,2}(人|公司|供应商|候选人|单位)(名称|信息)?|^供应商(名称|信息))[^\u4e00-\u9fa5]{0,10}([\u4e00-\u9fa5]{1,30}(公司|学校|研究所|研究院|院|所)))"
-p2 = r"((中标|成交|报|总报)(价|价格|金额).[^0-9]{0,3}([0-9]+[\.]?[0-9]+.{1,30}[元|圆][\)|\）]?))"
+p2 = r"((中标|成交|报|总报)(价|价格|金额).[^0-9]{0,3}([0-9]+[\.]?[0-9]+.{1,30}[元|圆][\)|\）]?))"
 # re.findall(p1, "加盟中标供应商撒旦法发顺丰公司商认购")
-utils.text_info_finder(text, text_key_word_dict)
+print(utils.table_info_finder(html, table_key_word_dict), utils.text_info_finder(text, text_key_word_dict))
