@@ -73,6 +73,7 @@ db = pymysql.connect(host=host, user=user,
 cur = db.cursor()
 
 print(host)
-cur.execute("select * from spider.zhongbiao_caigou_html limit 5")
-results = cur.fetchall()
+# cur.execute("select * from spider.zhongbiao_caigou_html limit 5")
+sql = "select * from spider.zhongbiao_caigou_html limit 5"
+results = pd.read_sql(sql, con=db)
 results
