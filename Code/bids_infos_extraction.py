@@ -8,6 +8,8 @@ import pandas as pd
 import numpy as np 
 import operator
 import re
+import pymysql
+import configparser
 from imp import reload
 from functools import reduce
 import utils
@@ -56,4 +58,21 @@ t = "".join(open(text, encoding='utf8').read().split())
 p1 = r"(((中标|成交).{0,2}(人|公司|供应商|候选人|单位)(名称|信息)?|^供应商(名称|信息))[^\u4e00-\u9fa5]{0,10}([\u4e00-\u9fa5]{1,30}(公司|学校|研究所|研究院|院|所)))"
 p2 = r"((中标|成交|报|总报)(价|价格|金额).[^0-9]{0,3}([0-9]+[\.]?[0-9]+.{1,30}[元|圆][\)|\）]?))"
 # re.findall(p1, "加盟中标供应商撒旦法发顺丰公司商认购")
-print(utils.table_info_finder(html, table_key_word_dict), utils.text_info_finder(text, text_key_word_dict))
+# print(utils.table_info_finder(html, table_key_word_dict), utils.text_info_finder(text, text_key_word_dict))
+
+config = configparser.ConfigParser()
+config.read("../Data/Input/database_config/db_spider.conf")
+host = config['DATABASE']['host']
+user = config['DATABASE']['user']
+password = config['DATABASE']['password']
+database = config['DATABASE']['database']
+port = config['DATABASE']['port']
+charset = config['DATABASE']['charset']
+db = pymysql.connect(host=host, user=user,
+    password=password, db=database, port=int(port), charset=charset)
+cur = db.cursor()
+
+print(host)
+cur.execute("select * from spider.zhongbiao_caigou_html limit 5")
+results = cur.fetchall()
+results

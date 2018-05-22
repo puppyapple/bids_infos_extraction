@@ -50,7 +50,10 @@ def table_info_finder(html_text, key_word_dict):
             print(tb)
         result_dict = {k: reduce(lambda a, b: a.union(b), [match_result(v["key_word_list"], v["step"], v["regex_list"], df)  \
             for df in table_list]) for k, v in key_word_dict.items()}
-        return result_dict
+        if len(result_dict["bid_winner"]) == len(result_dict["bid_amount"]):
+            return [(result_dict["bid_winner"][i], result_dict["bid_amount"][i]) for i in range(len(result_dict["bid_winner"]))]
+        else:
+            return [(result_dict["bid_winner"][i], "") for i in range(len(result_dict["bid_winner"]))]
 
 # 文本提取
 
@@ -58,11 +61,8 @@ def text_info_finder(text, key_word_dict):
     text_str = "".join(open(text, encoding='utf8').read().split())
     result_dict_raw = {k: (v["expr"][0], re.findall(v["expr"][1], text_str)) for k, v in key_word_dict.items()}
     result_dict = {k: [r[v[0]] for r in v[1]] for k, v in result_dict_raw.items()}
-    return result_dict
+    if len(result_dict["bid_winner"]) == len(result_dict["bid_amount"]):
+        return [(result_dict["bid_winner"][i], result_dict["bid_amount"][i]) for i in range(len(result_dict["bid_winner"]))]
+    else:
+        return [(result_dict["bid_winner"][i], "") for i in range(len(result_dict["bid_winner"]))]
 
-'''
-#%%
-df = pd.DataFrame([[1,2,3,4,5], [6,7,8,9,10], [11,12,13,14,15], [16,17,18,19,20]])
-
-match_result(8, 3, df)
-'''
