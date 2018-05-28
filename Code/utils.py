@@ -77,12 +77,12 @@ def text_info_finder(text, key_word_dict):
 def get_bid_info(col, col_type, search_list, table_name, db_con, text_key_word_dict, table_key_word_dict):
     sql = ""
     if search_list == "all":
-        sql = "select id, announcement_url_id, html, ggzw_text from %s" % (table_name)
+        sql = "select id, announcement_url_id, url, html, ggzw_text from %s" % (table_name)
     else:
         condition = ",".join(map(lambda x: "'" + str(x) + "'", search_list)) if col_type == str else ",".join(map(lambda x: str(x), search_list))
         sql = "select id, announcement_url_id, html, ggzw_text from %s where %s in (%s)" % (table_name, col, condition)
     df = pd.read_sql(sql, con=db_con)
-    result = df[["id", "announcement_url_id"]].copy()
+    result = df[["id", "announcement_url_id", "url"]].copy()
     result["result_from_text"] = df["ggzw_text"].apply(lambda x: text_info_finder(x, text_key_word_dict))
     result["result_from_table"] = df["html"].apply(lambda x: table_info_finder(x, table_key_word_dict))
     return result
