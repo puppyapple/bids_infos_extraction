@@ -10,6 +10,6 @@
 107-115行：text_info_finder，从公告文本中提取信息，输出参数为公告文本的字符串形式，和文本抽取的正则配置表。其余同上
 
 查询函数：
-117-131行：get_bid_info，自行批量运行测试数据时使用
-133-144行：get_bid_info_from_table，根据查询关键字（默认为announcement_url_id）在表中提取数据解析成结果，默认参数值取自上述定义的全局变量，request_key_value为announcement_url_id的字符串形式；返回结果为{announcement_url_id:{result_from_text:[(comp_name1, value1), (comp_name2, value2),...], result_from_table:[(comp_name1, value1), (comp_name2, value2),...]}}的字典形式
-147-148行：get_bid_info_from_source，根据公告文本字符串（text）和公告html字符串（html）
+117-139行：get_bid_info_conditio, get_bid_info_sqlcondition，自行批量运行测试数据时使用
+141-152行：get_bid_info_from_table，根据查询关键字（默认为announcement_url_id）在表中提取数据解析成结果，默认参数值取自上述定义的全局变量，request_key_value为announcement_url_id的字符串形式；返回结果为{announcement_url_id:{result_from_text:[(comp_name1, value1), (comp_name2, value2),...], result_from_table:[(comp_name1, value1), (comp_name2, value2),...]}}的字典形式
+154-155行：get_bid_info_from_source，根据公告文本字符串（text）和公告html字符串（html）直接返回{result_from_text:[(comp_name1, value1), (comp_name2, value2),...], result_from_table:[(comp_name1, value1), (comp_name2, value2),...]}；测试时有的表格中有专门对html清洗后的文本字段，因此将如果没有，text和html参数就统一使用html的字符串即可

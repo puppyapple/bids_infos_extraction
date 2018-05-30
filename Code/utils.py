@@ -21,15 +21,15 @@ db = pymysql.connect(host=host, user=user,
     password=password, db=database, port=int(port), charset=charset)
 
 request_key = "announcement_url_id"
-table_name = "spider.caigou_announcement_of_award"
-text_col_name="ggzw_html"
-html_col_name="ggzw_html"
+table_name = "spider.caigou_html"
+text_col_name="html"
+html_col_name="html"
 
 
 table_key_word_dict = {
     "bid_winner": {
         "step": 5,
-        "key_word_list": [r"^.{0,3}(中标|成交).{0,5}(人|公司|供应商|候选人|单位)(名称|信息)?$|^供应商(名称|信息)$", "第一中标候选人", "无中标公司信息"],
+        "key_word_list": [r"^.{0,3}(中标|成交).{0,5}(人|公司|供应商|候选人|单位)(名称|信息)?$|^供应商(名称|信息).*$", "第一中标候选人", "无中标公司信息"],
         "regex_list": [r".+[公司|学校|研究所|研究院|院|所]$"]
         },
     "bid_amount": {
@@ -41,10 +41,10 @@ table_key_word_dict = {
 
 text_key_word_dict = {
     "bid_winner": {
-        "expr": (6, r"(((中标|成交).{0,5}(人|公司|供应商|候选人|单位)(名称|信息)?|^供应商(名称|信息))[^\u4e00-\u9fa5]{0,10}([\u4e00-\u9fa5]{1,30}(公司|学校|研究所|研究院|院|所)))")
+        "expr": (6, r"(((中标|成交).{0,5}(人|公司|供应商|候选人|单位)(名称|信息)?|^供应商(名称|信息))[^\u4e00-\u9fa5]{0,10}([\u4e00-\u9fa5]{1,15}[(|（]?[\u4e00-\u9fa5]{1,10}[)|）]?[\u4e00-\u9fa5]{1,15}(公司|学校|研究所|研究院|院|所)))")
         },
     "bid_amount": {
-        "expr": (3, r"(总?(中标|成交)总?报?(价格?|金额)[:|：]?(.{1,20}[元|圆][\)|\）]?))") # r"(总?(中标|成交)总?报?(价|价格|金额).[^0-9]{0,3}([0-9]+[\.]?[0-9]+.{1,30}[元|圆][\)|\）]?))"
+        "expr": (3, r"(总?(中标|成交)总?报?(价格?|金额)[:|：]?(.{1,20}[元|圆][\)|\）]?))") 
         }
 }
 
@@ -96,6 +96,8 @@ def table_info_finder(html_text, key_word_dict):
             tb_v.insert(0, tb.columns)
             tb_list.append(pd.DataFrame(tb_v))
         # print(table_list)
+        if len(tb_list) == 0:
+            return []
         result_dict = {k: list(reduce(lambda a, b: a.union(b), [match_result(v["key_word_list"], v["step"], v["regex_list"], df)  \
             for df in tb_list])) for k, v in key_word_dict.items()}
         # print(result_dict)
@@ -115,7 +117,8 @@ def text_info_finder(text, key_word_dict):
         return [(result_dict["bid_winner"][i], "") for i in range(len(result_dict["bid_winner"]))]
 
 # announcement_url_id查询
-def get_bid_info(col="announcement_url_id", col_type=str, search_list="all", table_name=table_name, db_con=db, text_key_word_dict=text_key_word_dict, table_key_word_dict=table_key_word_dict):
+def get_bid_info_condition(col="announcement_url_id", col_type=str, search_list="all", table_name=table_name, 
+        db_con=db, text_key_word_dict=text_key_word_dict, table_key_word_dict=table_key_word_dict):
     sql = ""
     if search_list == "all":
         sql = "select * from %s" % (table_name)
@@ -126,9 +129,18 @@ def get_bid_info(col="announcement_url_id", col_type=str, search_list="all", tab
     result = df[["announcement_url_id", "url"]].copy()
     result["result_from_text"] = df["ggzw_text"].apply(lambda x: text_info_finder(x, text_key_word_dict))
     result["result_from_table"] = df["html"].apply(lambda x: table_info_finder(x, table_key_word_dict))
-    result.index = result.announcement_url_id
-    result.drop(["announcement_url_id"], axis=1, inplace=True)
-    return result.to_dict(orient='index')
+    # result.index = result.announcement_url_id
+    # result.drop(["announcement_url_id"], axis=1, inplace=True)
+    return result
+
+def get_bid_info_sqlcondition(sqlcondition, table_name=table_name, text_col_name=text_col_name, html_col_name=html_col_name, 
+        db_con=db, text_key_word_dict=text_key_word_dict, table_key_word_dict=table_key_word_dict):
+    sql = "select * from %s where %s" % (table_name, sqlcondition)
+    df = pd.read_sql(sql, con=db_con)
+    result = df[["announcement_url_id", "url"]].copy()
+    result["result_from_text"] = df[text_col_name].apply(lambda x: text_info_finder(x, text_key_word_dict))
+    result["result_from_table"] = df[html_col_name].apply(lambda x: table_info_finder(x, table_key_word_dict))
+    return result
 
 def get_bid_info_from_table(request_key_value, request_key=request_key, table_name=table_name, text_col_name=text_col_name, html_col_name=html_col_name, 
         db_con=db, text_key_word_dict=text_key_word_dict, table_key_word_dict=table_key_word_dict):
@@ -142,7 +154,6 @@ def get_bid_info_from_table(request_key_value, request_key=request_key, table_na
     result.index = result.announcement_url_id
     result.drop(["announcement_url_id"], axis=1, inplace=True)
     return result.to_dict(orient='index')
-
 
 def get_bid_info_from_source(text, html, text_key_word_dict=text_key_word_dict, table_key_word_dict=table_key_word_dict):
     return {"result_from_text": text_info_finder(text, text_key_word_dict), "result_from_table": table_info_finder(html, table_key_word_dict)}
