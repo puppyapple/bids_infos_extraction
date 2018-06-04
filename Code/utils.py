@@ -22,26 +22,26 @@ db = pymysql.connect(host=host, user=user,
 
 request_key = "announcement_url_id"
 table_name = "spider.caigou_html"
-text_col_name="html"
+text_col_name="ggzw_text"
 html_col_name="html"
 
 
 table_key_word_dict = {
     "bid_winner": {
         "step": 5,
-        "key_word_list": [r"^.{0,3}(中标|成交).{0,5}(人|公司|供应商|候选人|单位)(名称|信息)?$|^供应商(名称|信息).*$", "第一中标候选人", "无中标公司信息"],
-        "regex_list": [r".+[公司|学校|研究所|研究院|院|所]$"]
+        "key_word_list": [r"^.{0,3}(中标|成交).{0,5}(人|公司|供应商|候选人|单位|候选单位)(名称|信息)?.*$|^供应商(名称|信息).*$", "第一中标候选人", "无中标公司信息"],
+        "regex_list": [r".+[公司|学校|研究所|研究院|院|所].*$"]
         },
     "bid_amount": {
         "step": 5, 
-        "key_word_list": [r"^.{0,3}(中标|成交|报|总报).{0,5}(价|价格|金额)"],
+        "key_word_list": [r"^.{0,3}(中标|成交|报|总报).{0,5}(价|价格|金额).*"],
         "regex_list": [r"[^\.]*[0-9]+[\.]{0,1}[0-9]+[^\.]*$", "[壹贰叁肆伍陆柒捌玖拾佰仟万亿].*"]
         }    
 }
 
 text_key_word_dict = {
     "bid_winner": {
-        "expr": (6, r"(((中标|成交).{0,5}(人|公司|供应商|候选人|单位)(名称|信息)?|^供应商(名称|信息))[^\u4e00-\u9fa5]{0,10}([\u4e00-\u9fa5]{1,15}[(|（]?[\u4e00-\u9fa5]{1,10}[)|）]?[\u4e00-\u9fa5]{1,15}(公司|学校|研究所|研究院|院|所)))")
+        "expr": (6, r"(((中标|成交).{0,5}(人|公司|供应商|候选人|单位|候选单位)(名称|信息)?|^供应商(名称|信息))[^\u4e00-\u9fa5]{0,10}([\u4e00-\u9fa5]{1,15}[(|（]?[\u4e00-\u9fa5]{1,10}[)|）]?[\u4e00-\u9fa5]{1,15}(公司|学校|研究所|研究院|院|所)))")
         },
     "bid_amount": {
         "expr": (3, r"(总?(中标|成交)总?报?(价格?|金额)[:|：]?(.{1,20}[元|圆][\)|\）]?))") 
@@ -137,7 +137,7 @@ def get_bid_info_sqlcondition(sqlcondition, table_name=table_name, text_col_name
         db_con=db, text_key_word_dict=text_key_word_dict, table_key_word_dict=table_key_word_dict):
     sql = "select * from %s where %s" % (table_name, sqlcondition)
     df = pd.read_sql(sql, con=db_con)
-    result = df[["announcement_url_id", "url"]].copy()
+    result = df[["id", "announcement_url_id", "url", "ggzw_text"]].copy()
     result["result_from_text"] = df[text_col_name].apply(lambda x: text_info_finder(x, text_key_word_dict))
     result["result_from_table"] = df[html_col_name].apply(lambda x: table_info_finder(x, table_key_word_dict))
     return result

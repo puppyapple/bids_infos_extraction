@@ -20,13 +20,11 @@ reload(utils)
 utils.get_bid_info_from_table("6530025")
 
 #%%
-part1 = utils.get_bid_info_sqlcondition("(label_second = '中标公告' or label_three = '中标公告') and announcement_url_id is not null and release_time>'2016-01-01' and release_time<'2017-01-01' limit 6000")
-part1
+part1 = utils.get_bid_info_sqlcondition("(label_second = '中标公告' or label_three = '中标公告') and announcement_url_id is not null and ggzw_text is not null and release_time>'2016-01-01' and release_time<'2017-01-01' limit 6000")
+part2 = utils.get_bid_info_sqlcondition("(label_second = '中标公告' or label_three = '中标公告') and announcement_url_id is not null and ggzw_text is not null and release_time>'2017-01-01' and release_time<'2018-01-01' limit 6000")
+part3 = utils.get_bid_info_sqlcondition("(label_second = '中标公告' or label_three = '中标公告') and announcement_url_id is not null and ggzw_text is not null and release_time>'2018-01-01' limit 2000")
 #%%
-part2 = utils.get_bid_info_sqlcondition("(label_second = '中标公告' or label_three = '中标公告') and announcement_url_id is not null and release_time>'2017-01-01' and release_time<'2018-01-01' limit 6000")
-part3 = utils.get_bid_info_sqlcondition("(label_second = '中标公告' or label_three = '中标公告') and announcement_url_id is not null and release_time>'2018-01-01' limit 2000")
-#%% 
-result = pd.concat([part1, part2, part3]).to_csv("../Data/Output/bids_infos_extraction/test2.csv")
-
+result = pd.concat([part1, part2, part3]).to_excel("../Data/Output/bids_infos_extraction/中标测试4.xlsx")
+print("Done!")
 #%%
 len(part1)
