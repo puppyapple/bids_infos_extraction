@@ -75,10 +75,10 @@ def match_result(key_word_list, step, regex_list, df):
     if len(coordinates) != 0:
         result_raw = reduce(lambda a, b: a.union(b), [search_around(coo, step, df) for coo in coordinates])
         # print(result_raw)
-        return set([r for r in result_raw if is_match(r, regex_list)])
+        return [r for r in result_raw if is_match(r, regex_list)]
     else:
         # print("empty")
-        return set([])
+        return []
 
 # 根据不同的关键词（抽取主干）进行目标值提取，返回字典列表
 def table_info_finder(html_text, key_word_dict):

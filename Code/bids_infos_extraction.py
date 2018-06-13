@@ -28,3 +28,13 @@ result = pd.concat([part1, part2, part3]).to_excel("../Data/Output/bids_infos_ex
 print("Done!")
 #%%
 len(part1)
+
+#%%
+html = open("badcase.html", encoding="utf8")
+html_text = html.read()
+html_text
+
+#%%
+x = utils.get_bid_info_from_source("", html_text)
+x
+#%%
