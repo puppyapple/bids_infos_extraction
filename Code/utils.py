@@ -28,12 +28,12 @@ html_col_name="html"
 
 table_key_word_dict = {
     "bid_winner": {
-        "step": 5,
+        "step": 10,
         "key_word_list": [r"^.{0,3}(中标|成交).{0,5}(人|公司|供应商|候选人|单位|候选单位)(名称|信息)?.*$|^供应商(名称|信息).*$", "第一中标候选人", "无中标公司信息"],
         "regex_list": [r".+[公司|学校|研究所|研究院|院|所].*$"]
         },
     "bid_amount": {
-        "step": 5, 
+        "step": 10, 
         "key_word_list": [r"^.{0,3}(中标|成交|报|总报).{0,5}(价|价格|金额).*"],
         "regex_list": [r"[^\.]*[0-9]+[\.]{0,1}[0-9]+[^\.]*$", "[壹贰叁肆伍陆柒捌玖拾佰仟万亿].*"]
         }    
@@ -64,7 +64,7 @@ def search_around(coord, step, df):
         [(x, coord[1]) for x in range(coord[0] + 1, min(bottom_limit, coord[0] + step + 1))]
     # print(coords_around)
     values_around = [df.values[coo] for coo in coords_around]
-    return set(values_around)
+    return values_around
 
 # 根据获取全部关键词列表中的词语其右方和下方的数据，经过关键词类别对应的正则规则过滤
 def match_result(key_word_list, step, regex_list, df):
@@ -73,7 +73,7 @@ def match_result(key_word_list, step, regex_list, df):
     coordinates = set(reduce(lambda a, b: a + b, [list(zip(ind[0], ind[1])) for ind in indexes]))
     # print(indexes)
     if len(coordinates) != 0:
-        result_raw = reduce(lambda a, b: a.union(b), [search_around(coo, step, df) for coo in coordinates])
+        result_raw = reduce(lambda a, b: a + b, [search_around(coo, step, df) for coo in coordinates])
         # print(result_raw)
         return [r for r in result_raw if is_match(r, regex_list)]
     else:
@@ -98,7 +98,7 @@ def table_info_finder(html_text, key_word_dict):
         # print(table_list)
         if len(tb_list) == 0:
             return []
-        result_dict = {k: list(reduce(lambda a, b: a.union(b), [match_result(v["key_word_list"], v["step"], v["regex_list"], df)  \
+        result_dict = {k: list(reduce(lambda a, b: a + b, [match_result(v["key_word_list"], v["step"], v["regex_list"], df)  \
             for df in tb_list])) for k, v in key_word_dict.items()}
         # print(result_dict)
         if len(result_dict["bid_winner"]) == len(result_dict["bid_amount"]):
