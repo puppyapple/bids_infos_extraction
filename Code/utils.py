@@ -102,9 +102,9 @@ def table_info_finder(html_text, key_word_dict):
             for df in tb_list])) for k, v in key_word_dict.items()}
         # print(result_dict)
         if len(result_dict["bid_winner"]) == len(result_dict["bid_amount"]):
-            return [(result_dict["bid_winner"][i], result_dict["bid_amount"][i]) for i in range(len(result_dict["bid_winner"]))]
+            return list(set([(result_dict["bid_winner"][i], result_dict["bid_amount"][i]) for i in range(len(result_dict["bid_winner"]))]))
         else:
-            return [(result_dict["bid_winner"][i], "") for i in range(len(result_dict["bid_winner"]))]
+            return list(set([(result_dict["bid_winner"][i], "") for i in range(len(result_dict["bid_winner"]))]))
 
 # 文本提取
 def text_info_finder(text, key_word_dict):
@@ -112,9 +112,9 @@ def text_info_finder(text, key_word_dict):
     result_dict_raw = {k: (v["expr"][0], re.findall(v["expr"][1], text_str)) for k, v in key_word_dict.items()}
     result_dict = {k: [r[v[0]] for r in v[1]] for k, v in result_dict_raw.items()}
     if len(result_dict["bid_winner"]) == len(result_dict["bid_amount"]):
-        return [(result_dict["bid_winner"][i], result_dict["bid_amount"][i]) for i in range(len(result_dict["bid_winner"]))]
+        return list(set([(result_dict["bid_winner"][i], result_dict["bid_amount"][i]) for i in range(len(result_dict["bid_winner"]))]))
     else:
-        return [(result_dict["bid_winner"][i], "") for i in range(len(result_dict["bid_winner"]))]
+        return list(set([(result_dict["bid_winner"][i], "") for i in range(len(result_dict["bid_winner"]))]))
 
 # announcement_url_id查询
 def get_bid_info_condition(col="announcement_url_id", col_type=str, search_list="all", table_name=table_name, 
